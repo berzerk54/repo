@@ -1,0 +1,10 @@
+[mysqld]
+skip-host-cache
+skip-name-resolve
+#added
+tmp_table_size = 50MB
+query_cache_limit = 32M
+thread_cache_size = 20
+
+[mariadb]
+innodb_file_per_table = 1
