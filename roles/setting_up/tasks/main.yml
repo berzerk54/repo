@@ -1,0 +1,51 @@
+---
+# tasks file for setting_up
+
+  
+    - name: getting WordPress
+      get_url:
+         url: https://wordpress.org/latest.zip
+         dest: ~/ansible-project/work_tmp/site.ru/latest.zip
+         mode: '0644'
+
+    - name: extracting WordPress
+      unarchive:
+         src: ~/ansible-project/work_tmp/site.ru/latest.zip
+         dest: ~/ansible-project/work_tmp/site.ru/
+    
+    - name: Installing WP into site.ru environment
+      copy:
+         src: ~/ansible-project/work_tmp/site.ru/wordpress/ 
+         dest: ~/ansible-project/src/site.ru/html
+         force: no
+
+
+    - name: getting Tiny File Manager
+      get_url:
+         url: https://github.com/prasathmani/tinyfilemanager/archive/refs/heads/master.zip
+         dest: ~/ansible-project/work_tmp/site-2.ru/tinyfilemanager.zip
+         mode: '0644'
+
+    - name: extracting Tiny File Manager
+      unarchive:
+         src: ~/ansible-project/work_tmp/site-2.ru/tinyfilemanager.zip
+         dest: ~/ansible-project/work_tmp/site-2.ru/
+
+    
+    - name: Installing TFM into site.ru environment
+      copy:
+         src: ~/ansible-project/work_tmp/site-2.ru/tinyfilemanager-master/ 
+         dest: ~/ansible-project/src/site-2.ru/html
+         force: no
+
+    - name: setting up TFM
+      shell: "mv ~/ansible-project/src/site-2.ru/html/tinyfilemanager.php ~/ansible-project/src/site-2.ru/html/index.php"
+  
+    - name: setting up web privileges
+      file:
+        dest: "{{playbook_dir}}/src"
+        state: directory
+        owner: www-data
+        group: www-data
+        recurse: yes
+      become: yes  

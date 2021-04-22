@@ -1,0 +1,30 @@
+---
+# tasks file for setting_up_directories
+
+     - name: Creating Folders 
+       file:
+         path:   "{{ item }}"
+         mode: '0755'
+         owner: "{{ lookup('env', 'USER') }}"
+         group: "{{ lookup('env', 'USER') }}"
+         
+         state:  directory
+       loop:
+         - ~/ansible-project/mysql/config
+         - ~/ansible-project/mysql/mariadb
+         - ~/ansible-project/mysql/mariadb.conf.d
+         - ~/ansible-project/nginx/conf.d
+         - ~/ansible-project/phpmyadmin
+         - ~/ansible-project/src/site.ru/html
+         - ~/ansible-project/src/site.ru/logs
+         - ~/ansible-project/src/site.ru/sessions
+         - ~/ansible-project/src/site.ru/tmp
+         - ~/ansible-project/src/site-2.ru/html
+         - ~/ansible-project/src/site-2.ru/logs
+         - ~/ansible-project/src/site-2.ru/sessions
+         - ~/ansible-project/src/site-2.ru/tmp
+         - ~/ansible-project/web/php
+         - ~/ansible-project/web/apache2
+         - ~/ansible-project/work_tmp/site.ru
+         - ~/ansible-project/work_tmp/site-2.ru
+         - ~/ansible-project/work_tmp/configs

@@ -1,0 +1,29 @@
+---
+# tasks file for preparing_distribs
+
+  - name: Getting configs
+    git:
+      repo: https://github.com/berzerk54/repo.git
+      dest: ~/ansible-project/work_tmp/configs
+         
+  - name: Installing  environment configuration
+    copy:
+      src: ~/ansible-project/work_tmp/configs/{{item}} #configs/repo-master/ 
+      dest: ~/ansible-project
+      force: no
+    loop:
+      - mysql
+      - nginx
+      - phpmyadmin
+      - web         
+
+  - name: Install docker
+    apt: 
+      pkg: docker-ce 
+      state: latest
+
+  - name: Ensure docker deamon is running
+    service:
+      name: docker
+      state: started
+    become: true      

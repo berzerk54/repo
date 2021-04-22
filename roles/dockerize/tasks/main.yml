@@ -1,0 +1,91 @@
+---
+# tasks file for dockerize
+
+  - name: Create a docker network 
+    docker_network:
+      name: app1_net
+      driver: bridge
+      ipam_options:
+        subnet: 172.16.0.0/28
+
+  - name: Pulling docker images for environment
+    docker_image:
+      name: "{{ item }}"
+    loop:
+      - mariadb
+      - phpmyadmin/phpmyadmin
+      - nginx
+      - php:7.4.16-apache-buster
+    
+
+  - name: ==>>> Starting MariaDB  <<<==
+    docker_container:
+      image: mariadb
+      name: mariadb
+      state: started
+      restart: yes
+      networks:
+        - name: app1_net
+          ipv4_address: 172.16.0.5
+      env:
+        MYSQL_ROOT_PASSWORD: SomeP@ssword
+        PMA_ABSOLUTE_URI: ./
+      volumes:
+        - ~/ansible-project/mysql/mariadb:/var/lib/mysql
+
+
+  - name: ==>>> Starting phpmyadmin <<<==
+    docker_container:
+      image: phpmyadmin/phpmyadmin
+      name: phpmyadmin
+      state: started
+      restart: yes
+      env:
+        MYSQL_ROOT_PASSWORD: SomeP@ssword
+      links:
+        - mariadb:db
+      networks:
+        - name: app1_net
+          ipv4_address: 172.16.0.6
+    
+  - name: ==>>> Building Apache Web Server <<<==
+    docker_image:
+      name: web
+      path: ~/ansible-project/web/php
+      tag: v1
+      state: build
+    
+  - name: starting apache 
+    docker_container:   
+      image: web:v1
+      name: web
+      state: started
+      restart: yes
+      links:
+        - phpmyadmin
+      networks:
+        - name: app1_net
+          ipv4_address: 172.16.0.4
+      volumes:
+        - ~/ansible-project/web/apache2:/etc/apache2
+        - ~/ansible-project/src/site.ru:/var/www/site.ru
+        - ~/ansible-project/src/site-2.ru:/var/www/site-2.ru
+        - ~/ansible-project/web/php/php.ini:/usr/local/etc/php/php.ini
+  - name: ==>>> Starting Nginx Web Server <<<==
+    docker_container:
+      image: nginx
+      name: nginx
+      state: started
+      restart: yes
+      links:
+        - phpmyadmin
+      networks:
+        - name: app1_net
+          ipv4_address: 172.16.0.3
+      ports:
+        - 80:80
+      volumes:
+        - ~/ansible-project/src/site.ru:/var/www/site.ru
+        - ~/ansible-project/src/site-2.ru:/var/www/site-2.ru
+        - ~/ansible-project/nginx/nginx.conf:/etc/nginx/nginx.conf
+        - ~/ansible-project/nginx/conf.d:/etc/nginx/conf.d
